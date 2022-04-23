@@ -1,21 +1,27 @@
 package org.xiangqian.maven.plugin.defoliation.expression.simple;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.xiangqian.maven.plugin.defoliation.expression.EvaluationContext;
 import org.xiangqian.maven.plugin.defoliation.expression.Expression;
+import org.xiangqian.maven.plugin.defoliation.expression.simple.rules.DefaultRuleBuilder;
+import org.xiangqian.maven.plugin.defoliation.expression.simple.rules.Rule;
+import org.xiangqian.maven.plugin.defoliation.expression.simple.rules.RuleBuilder;
+import org.xiangqian.maven.plugin.defoliation.expression.simple.rules.Value;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author xiangqian
  * @date 21:15:59 2022/04/20
  */
 public class SimpleExpression implements Expression {
+
+    private static final String REGEX = "\\$\\{([^}]*)\\}";
+    private static final Pattern PATTERN = Pattern.compile(REGEX);
 
     private EvaluationContext evaluationContext;
 
@@ -24,19 +30,23 @@ public class SimpleExpression implements Expression {
 
     private String[] names;
 
+    private RuleBuilder ruleBuilder;
+
     /**
      * @param evaluationContext
      * @param expressionString  ${name}
      */
     public SimpleExpression(EvaluationContext evaluationContext, String expressionString) {
         this.evaluationContext = evaluationContext;
-        this.expressionString = expressionString = expressionString.substring(2, expressionString.length() - 1);
-        this.names = expressionString.split("\\.");
+        Matcher matcher = PATTERN.matcher(expressionString);
+        this.expressionString = matcher.find() ? matcher.group(1) : expressionString;
+        this.names = this.expressionString.split("\\.");
+        this.ruleBuilder = new DefaultRuleBuilder();
     }
 
     @Override
     public <T> T getValue(Class<T> type) throws ClassCastException {
-        Stack<Rule> rules = getRules();
+        Stack<Rule> rules = ruleBuilder.build(names);
         Object value = null;
         while (value == null && CollectionUtils.isNotEmpty(rules)) {
             value = Optional.ofNullable(rules.pop().match(evaluationContext)).map(Value::getValue).orElse(null);
@@ -55,83 +65,20 @@ public class SimpleExpression implements Expression {
 
     @Override
     public void setValue(Object value) {
-        Stack<Rule> rules = getRules();
-        while (CollectionUtils.isNotEmpty(rules)) {
-            Rule rule = rules.pop();
-            Value val = rule.match(evaluationContext);
-            Stack<Value> valueStack = rule.getValueStack();
-            if (val != null && valueStack.size() > 1) {
-                String name = valueStack.pop().getName();
-                Object object = valueStack.pop().getValue();
-                if (object instanceof Map) {
-                    ((Map) object).put(name, value);
-                }
-                break;
-            }
-        }
-    }
-
-    private Stack<Rule> getRules() {
-        Stack<Rule> rules = new Stack<>();
-
-        // rule 1
-        int length = names.length;
-        Rule rule1 = new Rule();
-        int index = length;
-        while (index-- > 0) {
-            rule1.add(names[index]);
-        }
-        rules.push(rule1);
-
-        // rule 2
-        // ...
-
-        return rules;
-    }
-
-    public static class Rule {
-        private Stack<String> nameStack;
-
-        @Getter
-        private Stack<Value> valueStack;
-
-        public Rule() {
-            this.nameStack = new Stack<>();
-            this.valueStack = new Stack<>();
-        }
-
-        public void add(String item) {
-            nameStack.push(item);
-        }
-
-        public Value match(Object value) {
-            if (nameStack.isEmpty() || value == null) {
-                return valueStack.peek();
-            }
-
-            if (value instanceof EvaluationContext) {
-                String name = nameStack.pop();
-                Object val = ((EvaluationContext) value).lookupVariable(name);
-                valueStack.push(new Value(name, val));
-                return match(val);
-
-            } else if (value instanceof Map) {
-                String name = nameStack.pop();
-                Object val = ((Map) value).get(name);
-                valueStack.push(new Value(name, val));
-                return match(val);
-            }
-            return null;
-        }
-
-    }
-
-    @Data
-    @AllArgsConstructor
-    public static class Value {
-        public static final Object NULL = new Object();
-        private String name;
-        private Object value;
+//        Stack<Rule> rules = getRules();
+//        while (CollectionUtils.isNotEmpty(rules)) {
+//            Rule rule = rules.pop();
+//            Value val = rule.match(evaluationContext);
+//            Value v = rule.popValueStack();
+//            while (v != null) {
+//                String name = v.getName();
+//                Object object = v.getValue();
+//                if (object instanceof Map) {
+//                    ((Map) object).put(name, value);
+//                }
+//                break;
+//            }
+//        }
     }
 
 }

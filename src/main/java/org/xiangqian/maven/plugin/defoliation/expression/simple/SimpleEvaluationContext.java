@@ -19,15 +19,17 @@ public class SimpleEvaluationContext implements EvaluationContext {
     private File file;
     private Map<String, Object> dataMap;
 
-    public SimpleEvaluationContext(File file) throws FileNotFoundException {
-        Yaml yaml = new Yaml();
-        InputStream inputStream = null;
+    public SimpleEvaluationContext(InputStream inputStream) {
         try {
-            inputStream = new FileInputStream(file);
+            Yaml yaml = new Yaml();
             dataMap = yaml.load(inputStream);
         } finally {
             IOUtils.closeQuietly(inputStream);
         }
+    }
+
+    public SimpleEvaluationContext(File file) throws FileNotFoundException {
+        this(new FileInputStream(file));
     }
 
     @Override

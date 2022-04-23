@@ -8,6 +8,10 @@ package org.xiangqian.maven.plugin.defoliation.expression;
  */
 public interface ExpressionParser {
 
+    /**
+     * @param expressionString ${name}
+     * @return
+     */
     Expression parseExpression(String expressionString);
 
 }

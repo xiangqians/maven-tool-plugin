@@ -10,7 +10,7 @@
     <packaging>maven-plugin</packaging>
 
     <name>${project.artifactId}</name>
-    <url>https://github.com/xiangqians</url>
+    <url>https://github.com/xiangqians/defoliation-maven-plugin</url>
     <description>defoliation-maven-plugin</description>
 
     <properties>

@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: defoliation-maven-plugin
+  mvc:
+    static-path-pattern: /**
+  resources:
+    static-locations: classpath:/,classpath:/
+  profiles:
+    active: dev
+
+defoliation:
+  resources:
+    locations:
+      - /templates
+      - /static
+
+  object:
