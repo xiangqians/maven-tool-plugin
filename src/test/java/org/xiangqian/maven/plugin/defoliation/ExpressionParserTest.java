@@ -57,7 +57,6 @@ public class ExpressionParserTest {
         expression = expressionParser.parseExpression("${defoliation[resources].locations[0]}");
         locations0 = expression.getValue(String.class);
         System.out.format("locations0=%s\n", locations0);
-
     }
 
 }

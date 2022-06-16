@@ -16,7 +16,6 @@ import java.util.Map;
  */
 public class SimpleEvaluationContext implements EvaluationContext {
 
-    private File file;
     private Map<String, Object> dataMap;
 
     public SimpleEvaluationContext(InputStream inputStream) {

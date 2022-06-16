@@ -48,8 +48,8 @@ public abstract class DefoliationMojo extends AbstractMojo {
 
     protected abstract void run() throws Exception;
 
-    protected final void setProperty(String key, Object value) {
-        setProperty(new Property(key, value));
+    protected final void setProperty(String name, Object value) {
+        setProperty(new Property(name, value));
     }
 
     protected final void setProperty(Property... properties) {
@@ -70,16 +70,24 @@ public abstract class DefoliationMojo extends AbstractMojo {
 
     private void setProperty(MavenProject project, Property... properties) {
         for (Property property : properties) {
-            info("Storing {} property in project {}", property.getKey(), project.getId());
-            project.getProperties().setProperty(property.getKey(), String.valueOf(property.getValue()));
+            info("Storing the '{}' property in the '{}' project with value of '{}'.", property.getName(), project.getId(), property.getValue());
+            project.getProperties().setProperty(property.getName(), String.valueOf(property.getValue()));
         }
     }
 
     @Data
     @AllArgsConstructor
     protected static class Property {
-        private String key;
+        private String name;
         private Object value;
+    }
+
+    protected final void error(String format, Object... args) {
+        log(LogLevel.ERROR, format, args);
+    }
+
+    protected final void warn(String format, Object... args) {
+        log(LogLevel.WARN, format, args);
     }
 
     protected final void info(String format, Object... args) {
@@ -91,7 +99,7 @@ public abstract class DefoliationMojo extends AbstractMojo {
     }
 
     private enum LogLevel {
-        DEBUG, INFO
+        DEBUG, INFO, WARN, ERROR
     }
 
     private void log(LogLevel level, String format, Object... args) {
@@ -107,9 +115,19 @@ public abstract class DefoliationMojo extends AbstractMojo {
             case DEBUG:
                 getLog().debug(content);
                 break;
+
             case INFO:
                 getLog().info(content);
                 break;
+
+            case WARN:
+                getLog().warn(content);
+                break;
+
+            case ERROR:
+                getLog().error(content);
+                break;
+
             default:
                 break;
         }

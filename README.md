@@ -77,6 +77,9 @@ defoliation-maven-plugin
                 <properties>
                     <!-- 从配置文件中获取 ${server.port} 值，并将其值以属性名 "defoliation.server.port" 添加到 MavenProject#Properties 中，可通过 "${defoliation.server.port}" 获取该属性值 -->
                     <server.port>defoliation.server.port</server.port>
+
+                    <!-- 将配置文件中所有的属性和值添加到 MavenProject#Properties 中（目前只支持properties文件） -->
+                    <all>*</all>
                 </properties>
             </configuration>
         </execution>

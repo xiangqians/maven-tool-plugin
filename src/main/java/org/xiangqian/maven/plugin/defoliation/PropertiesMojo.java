@@ -1,8 +1,10 @@
 package org.xiangqian.maven.plugin.defoliation;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -12,10 +14,14 @@ import org.xiangqian.maven.plugin.defoliation.expression.simple.SimpleEvaluation
 import org.xiangqian.maven.plugin.defoliation.expression.simple.SimpleExpressionParser;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Enumeration;
-import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.function.BiConsumer;
 
 /**
  * properties
@@ -48,35 +54,99 @@ public class PropertiesMojo extends DefoliationMojo {
             return;
         }
 
-        List<ExpressionParser> expressionParsers = new ArrayList<>();
-        for (File include : includes) {
-            if (include == null || !include.exists()) {
-                continue;
-            }
-            ExpressionParser expressionParser = new SimpleExpressionParser(new SimpleEvaluationContext(include));
-            expressionParsers.add(expressionParser);
+        for (File file : includes) {
+            handle(file);
         }
+    }
 
-        if (CollectionUtils.isEmpty(expressionParsers)) {
-            info("expressionParsers is empty");
+    private void handle(File file) throws IOException {
+        // 文件扩展名
+        String extension = null;
+        if (file == null || !file.exists() || (extension = FilenameUtils.getExtension(file.getName())) == null) {
             return;
         }
 
-        // parse & set
-        Enumeration<?> propertyNames = properties.propertyNames();
-        while (propertyNames.hasMoreElements()) {
-            String propertyName = propertyNames.nextElement().toString();
-            String propertyValue = properties.getProperty(propertyName);
-            Object value = null;
-            for (ExpressionParser expressionParser : expressionParsers) {
-                Expression expression = expressionParser.parseExpression(String.format("${%s}", propertyName));
-                value = expression.getValue(Object.class);
-                if (value != null) {
-                    break;
-                }
+        Function function = null;
+
+        // properties
+        if (extension.equals("properties")) {
+            InputStream is = null;
+            try {
+                is = new FileInputStream(file);
+                Properties properties = new Properties();
+                properties.load(is);
+                function = new Function() {
+                    @Override
+                    public Object get(String name) {
+                        return properties.getProperty(name);
+                    }
+
+                    @Override
+                    public void forEach(BiConsumer<String, Object> consumer) {
+                        for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+                            String key = String.valueOf(entry.getKey());
+                            Object value = entry.getValue();
+                            consumer.accept(key, value);
+                        }
+                    }
+                };
+            } finally {
+                IOUtils.closeQuietly(is);
             }
-            setProperty(propertyValue, value);
         }
+        // yaml
+        else if (extension.equals("yml") || extension.equals("yaml")) {
+            ExpressionParser expressionParser = new SimpleExpressionParser(new SimpleEvaluationContext(file));
+            function = new Function() {
+                @Override
+                public Object get(String name) {
+                    Expression expression = expressionParser.parseExpression(String.format("${%s}", name));
+                    Object value = expression.getValue(Object.class);
+                    return value;
+                }
+
+                @Override
+                public void forEach(BiConsumer<String, Object> consumer) {
+                }
+            };
+        }
+
+        handle(function);
+    }
+
+    // parse & set
+    private void handle(Function function) {
+        if (function == null) {
+            return;
+        }
+
+        boolean all = false;
+        Enumeration<?> names = properties.propertyNames();
+        while (names.hasMoreElements()) {
+            String name = StringUtils.trimToNull(names.nextElement().toString());
+            if (StringUtils.isEmpty(name)) {
+                continue;
+            }
+            String value = StringUtils.trimToNull(properties.getProperty(name));
+            if ("all".equals(name) && "*".equals(value)) {
+                all = true;
+                continue;
+            }
+
+            String propertyName = Optional.ofNullable(value).orElse(name);
+            Object propertyValue = function.get(name);
+            setProperty(propertyName, propertyValue);
+        }
+
+        if (all) {
+            function.forEach((key, value) -> setProperty(key, value));
+        }
+    }
+
+    public static interface Function {
+        Object get(String name);
+
+        void forEach(BiConsumer<String, Object> consumer);
     }
 
 }
