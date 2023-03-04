@@ -34,28 +34,28 @@ public class ExpressionParserTest {
         String active = expression.getValue(String.class);
         System.out.format("active=%s\n", active);
 
-        // defoliation.resources.locations
-        expression = expressionParser.parseExpression("${defoliation.resources.locations}");
+        // tool.resources.locations
+        expression = expressionParser.parseExpression("${tool.resources.locations}");
         List locations = expression.getValue(List.class);
         System.out.format("locations=%s\n", locations);
 
-        // defoliation.resources.locations
-        expression = expressionParser.parseExpression("${defoliation.resources[locations]}");
+        // tool.resources.locations
+        expression = expressionParser.parseExpression("${tool.resources[locations]}");
         locations = expression.getValue(List.class);
         System.out.format("locations=%s\n", locations);
 
-        // defoliation.resources.locations
-        expression = expressionParser.parseExpression("${defoliation[resources].locations}");
+        // tool.resources.locations
+        expression = expressionParser.parseExpression("${tool[resources].locations}");
         locations = expression.getValue(List.class);
         System.out.format("locations=%s\n", locations);
 
-        // defoliation.resources.locations
-        expression = expressionParser.parseExpression("${defoliation.resources.locations[0]}");
+        // tool.resources.locations
+        expression = expressionParser.parseExpression("${tool.resources.locations[0]}");
         String locations0 = expression.getValue(String.class);
         System.out.format("locations0=%s\n", locations0);
 
-        // defoliation.resources.locations
-        expression = expressionParser.parseExpression("${defoliation[resources].locations[0]}");
+        // tool.resources.locations
+        expression = expressionParser.parseExpression("${tool[resources].locations[0]}");
         locations0 = expression.getValue(String.class);
         System.out.format("locations0=%s\n", locations0);
     }

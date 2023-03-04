@@ -1,5 +1,8 @@
 package org.xiangqian.maven.tool.plugin.file;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -8,6 +11,8 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.xiangqian.maven.tool.plugin.AbsMojo;
+import org.xiangqian.maven.tool.plugin.file.properties.PropertiesFileLoadMojo;
+import org.xiangqian.maven.tool.plugin.file.yaml.YamlFileLoadMojo;
 
 import java.io.File;
 import java.util.Enumeration;
@@ -20,16 +25,25 @@ import java.util.function.BiConsumer;
  * @author xiangqian
  * @date 12:13 2023/03/04
  */
+@NoArgsConstructor
 @Mojo(name = "file-load", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class FileLoadMojo extends AbsMojo {
 
     // 需要包含的配置文件
+    @Getter
+    @Setter
     @Parameter(property = "includes")
-    protected File[] includes;
+    private File[] includes;
 
     // 配置将要获取资源文件的属性名以及该属性值的引用名
     @Parameter(property = "properties")
-    protected Properties properties;
+    private Properties properties;
+
+    public FileLoadMojo(FileLoadMojo fileLoadMojo) {
+        super(fileLoadMojo);
+        this.includes = fileLoadMojo.includes;
+        this.properties = fileLoadMojo.properties;
+    }
 
     @Override
     protected void run() throws Exception {
@@ -37,19 +51,54 @@ public class FileLoadMojo extends AbsMojo {
             return;
         }
 
+        // properties
+        PropertiesFileLoadMojo propertiesFileLoadMojo = new PropertiesFileLoadMojo(this);
+        // yaml
+        YamlFileLoadMojo yamlFileLoadMojo = new YamlFileLoadMojo(this);
+
         for (File file : includes) {
-            // 文件扩展名
-            String extension = null;
-            if (file == null || !file.exists() || (extension = FilenameUtils.getExtension(file.getName())) == null) {
-                return;
+            // 校验文件
+            if (!check(file)) {
+                continue;
             }
+
+            // 文件扩展名
+            String extension = StringUtils.trim(FilenameUtils.getExtension(file.getName()));
             // properties
-            if (extension.equals("properties")) {
+            if ("properties".equals(extension)) {
+                propertiesFileLoadMojo.setIncludes(new File[]{file});
+                propertiesFileLoadMojo.execute();
             }
             // yaml
-            else if (extension.equals("yml") || extension.equals("yaml")) {
+            else if ("yml".equals(extension) || "yaml".equals(extension)) {
+                yamlFileLoadMojo.setIncludes(new File[]{file});
+                yamlFileLoadMojo.execute();
+            }
+            // unknown
+            else {
+                warn(String.format("file type is not supported: %s", file.getAbsolutePath()));
             }
         }
+    }
+
+    /**
+     * 校验文件
+     *
+     * @param file
+     * @return
+     */
+    protected boolean check(File file) {
+        if (Objects.isNull(file)) {
+            warn("file is null");
+            return false;
+        }
+
+        if (!file.exists()) {
+            warn(String.format("file not found: %s", file.getAbsolutePath()));
+            return false;
+        }
+
+        return true;
     }
 
     protected boolean check() {
@@ -95,6 +144,7 @@ public class FileLoadMojo extends AbsMojo {
         }
         // some
         else {
+            names = properties.propertyNames();
             while (names.hasMoreElements()) {
                 String name = Optional.ofNullable(names.nextElement()).map(Object::toString).map(StringUtils::trimToNull).orElse(null);
                 if (StringUtils.isEmpty(name)) {

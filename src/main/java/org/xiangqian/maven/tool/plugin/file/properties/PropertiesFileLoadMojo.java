@@ -1,5 +1,6 @@
 package org.xiangqian.maven.tool.plugin.file.properties;
 
+import lombok.NoArgsConstructor;
 import org.apache.commons.io.IOUtils;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -18,8 +19,13 @@ import java.util.function.BiConsumer;
  * @author xiangqian
  * @date 21:47 2022/04/19
  */
+@NoArgsConstructor
 @Mojo(name = "properties-file-load", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class PropertiesFileLoadMojo extends FileLoadMojo {
+
+    public PropertiesFileLoadMojo(FileLoadMojo fileLoadMojo) {
+        super(fileLoadMojo);
+    }
 
     @Override
     protected void run() throws Exception {
@@ -27,7 +33,12 @@ public class PropertiesFileLoadMojo extends FileLoadMojo {
             return;
         }
 
-        for (File file : includes) {
+        for (File file : getIncludes()) {
+            // 校验文件
+            if (!check(file)) {
+                continue;
+            }
+
             InputStream input = null;
             try {
                 input = new FileInputStream(file);

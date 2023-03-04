@@ -1,6 +1,7 @@
 package org.xiangqian.maven.tool.plugin;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
@@ -21,6 +22,7 @@ import java.util.Optional;
  * @author xiangqian
  * @date 20:05 2022/04/21
  */
+@NoArgsConstructor
 public abstract class AbsMojo extends AbstractMojo {
 
     // maven project
@@ -39,9 +41,17 @@ public abstract class AbsMojo extends AbstractMojo {
     @Parameter(property = "skip", defaultValue = "false")
     private boolean skip;
 
+    public AbsMojo(AbsMojo absMojo) {
+        this.project = absMojo.project;
+        this.session = absMojo.session;
+        this.applyProjectDependencies = absMojo.applyProjectDependencies;
+        this.skip = absMojo.skip;
+    }
+
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         if (skip) {
+            warn("skip");
             return;
         }
 

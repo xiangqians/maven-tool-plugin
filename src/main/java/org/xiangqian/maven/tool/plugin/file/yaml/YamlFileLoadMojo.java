@@ -1,5 +1,6 @@
 package org.xiangqian.maven.tool.plugin.file.yaml;
 
+import lombok.NoArgsConstructor;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.xiangqian.maven.tool.plugin.file.FileLoadMojo;
@@ -17,8 +18,13 @@ import java.util.function.BiConsumer;
  * @author xiangqian
  * @date 12:12 2023/03/04
  */
+@NoArgsConstructor
 @Mojo(name = "yaml-file-load", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class YamlFileLoadMojo extends FileLoadMojo {
+
+    public YamlFileLoadMojo(FileLoadMojo fileLoadMojo) {
+        super(fileLoadMojo);
+    }
 
     @Override
     protected void run() throws Exception {
@@ -26,7 +32,12 @@ public class YamlFileLoadMojo extends FileLoadMojo {
             return;
         }
 
-        for (File file : includes) {
+        for (File file : getIncludes()) {
+            // 校验文件
+            if (!check(file)) {
+                continue;
+            }
+
             ExpressionParser expressionParser = new SimpleExpressionParser(new SimpleEvaluationContext(file));
             setProperty(new PropertyFunc() {
                 @Override
