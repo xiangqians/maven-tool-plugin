@@ -1,22 +1,27 @@
-package org.xiangqian.maven.plugin.defoliation;
+package org.xiangqian.maven.plugin.tool.mojo;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
+ * 抽象的 {@link Mojo}
+ *
  * @author xiangqian
- * @date 20:05:28 2022/04/21
+ * @date 20:05 2022/04/21
  */
-public abstract class DefoliationMojo extends AbstractMojo {
+public abstract class AbsMojo extends AbstractMojo {
 
     // maven project
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -39,6 +44,7 @@ public abstract class DefoliationMojo extends AbstractMojo {
         if (skip) {
             return;
         }
+
         try {
             run();
         } catch (Exception e) {
@@ -49,6 +55,11 @@ public abstract class DefoliationMojo extends AbstractMojo {
     protected abstract void run() throws Exception;
 
     protected final void setProperty(String name, Object value) {
+        name = StringUtils.trimToNull(name);
+        if (Objects.isNull(name)) {
+            return;
+        }
+
         setProperty(new Property(name, value));
     }
 
@@ -68,18 +79,43 @@ public abstract class DefoliationMojo extends AbstractMojo {
         }
     }
 
+    /**
+     * @param project
+     * @param properties
+     */
     private void setProperty(MavenProject project, Property... properties) {
         for (Property property : properties) {
-            info("Storing the '{}' property in the '{}' project with value of '{}'.", property.getName(), project.getId(), property.getValue());
-            project.getProperties().setProperty(property.getName(), String.valueOf(property.getValue()));
+            if (Objects.isNull(property) || !property.isValid()) {
+                continue;
+            }
+
+            info("Storing the '%s' property in the '%s' project with value of '%s'.", property.getKey(), project.getId(), property.getValue());
+            project.getProperties().setProperty(property.getKey(), Optional.ofNullable(property.getValue()).map(Object::toString).map(StringUtils::trimToEmpty).orElse(""));
         }
     }
 
     @Data
-    @AllArgsConstructor
     protected static class Property {
-        private String name;
+        private String key;
         private Object value;
+
+        public Property(String key, Object value) {
+            this.key = StringUtils.trimToNull(key);
+            this.value = value;
+        }
+
+        public void setKey(String key) {
+            this.key = StringUtils.trimToNull(key);
+        }
+
+        /**
+         * 判断 {@link Property} 是否有效
+         *
+         * @return
+         */
+        public boolean isValid() {
+            return Objects.nonNull(key);
+        }
     }
 
     protected final void error(String format, Object... args) {
@@ -98,15 +134,22 @@ public abstract class DefoliationMojo extends AbstractMojo {
         log(LogLevel.DEBUG, format, args);
     }
 
-    private enum LogLevel {
+    protected enum LogLevel {
         DEBUG, INFO, WARN, ERROR
     }
 
+    /**
+     * log
+     *
+     * @param level  {@link LogLevel}
+     * @param format
+     * @param args
+     */
     private void log(LogLevel level, String format, Object... args) {
         StringBuilder content = new StringBuilder();
-        content.append("[").append(this.getClass().getSimpleName()).append("]");
+        content.append(this.getClass().getSimpleName()).append(": ");
         if (ArrayUtils.isNotEmpty(args)) {
-            content.append(String.format(format.replace("{}", "%s"), args));
+            content.append(String.format(format, args));
         } else {
             content.append(format);
         }

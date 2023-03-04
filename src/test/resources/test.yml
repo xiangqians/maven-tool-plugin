@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: defoliation-maven-plugin
+    name: maven-tool-plugin
   mvc:
     static-path-pattern: /**
   resources:

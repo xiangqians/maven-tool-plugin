@@ -1,4 +1,4 @@
-package org.xiangqian.maven.plugin.defoliation.expression.simple.rules;
+package org.xiangqian.maven.plugin.tool.expression.simple.rules;
 
 /**
  * rule

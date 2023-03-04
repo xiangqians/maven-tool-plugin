@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.xiangqian</groupId>
-    <artifactId>defoliation-maven-plugin</artifactId>
+    <artifactId>maven-tool-plugin</artifactId>
     <version>2022.4</version>
     <!-- maven plugin开发需要指定打包方式为：maven-plugin -->
     <packaging>maven-plugin</packaging>
 
     <name>${project.artifactId}</name>
-    <url>https://github.com/xiangqians/defoliation-maven-plugin</url>
-    <description>defoliation-maven-plugin</description>
+    <url>https://github.com/xiangqians/maven-tool-plugin</url>
+    <description>maven-tool-plugin</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -118,7 +118,7 @@
                 <artifactId>maven-deploy-plugin</artifactId>
                 <version>${maven-deploy-plugin.version}</version>
                 <configuration>
-                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repository
                     </altDeploymentRepository>
                 </configuration>
             </plugin>
