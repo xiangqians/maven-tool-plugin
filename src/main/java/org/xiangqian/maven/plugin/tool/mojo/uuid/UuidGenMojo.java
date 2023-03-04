@@ -11,7 +11,7 @@ import java.util.UUID;
  * uuid生成
  *
  * @author xiangqian
- * @date 20:43:36 2022/04/21
+ * @date 20:43 2022/04/21
  */
 @Mojo(name = "uuid-gen", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class UuidGenMojo extends AbsMojo {

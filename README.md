@@ -1,6 +1,6 @@
 # 简介
 
-maven-tool-plugin， 这是maven插件，生成uuid、日期、时间戳和解析yaml配置文件
+maven-tool-plugin， 这是maven插件，生成uuid、时间戳、日期和解析properties/yaml配置文件
 
 # 使用
 

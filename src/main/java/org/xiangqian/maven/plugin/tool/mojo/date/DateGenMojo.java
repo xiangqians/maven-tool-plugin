@@ -9,11 +9,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
+ * date生成
+ *
  * @author xiangqian
- * @date 20:53:07 2022/04/21
+ * @date 20:53 2022/04/21
  */
 @Mojo(name = "date-gen", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
-public class GenerateDateMojo extends AbsMojo {
+public class DateGenMojo extends AbsMojo {
 
     // date属性名
     @Parameter(property = "name", defaultValue = "date")

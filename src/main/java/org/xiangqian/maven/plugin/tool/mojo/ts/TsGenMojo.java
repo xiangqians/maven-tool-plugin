@@ -14,7 +14,7 @@ import java.time.ZoneId;
  * timestamp生成
  *
  * @author xiangqian
- * @date 20:02:45 2022/04/21
+ * @date 20:02 2022/04/21
  */
 @Mojo(name = "ts-gen", defaultPhase = LifecyclePhase.NONE, threadSafe = true)
 public class TsGenMojo extends AbsMojo {
