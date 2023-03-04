@@ -6,6 +6,8 @@ maven-tool-plugin， 这是maven插件，生成uuid、时间戳、日期和加�
 
 在pom.xml添加plugin依赖
 
+Maven仓库地址: https://github.com/xiangqians/mvn-repository
+
 ```xml
 
 <project>
