@@ -1,4 +1,4 @@
-package org.xiangqian.maven.plugin.tool.expression.simple.rules;
+package org.xiangqian.maven.plugin.tool.file.yaml.expression.simple.rules;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

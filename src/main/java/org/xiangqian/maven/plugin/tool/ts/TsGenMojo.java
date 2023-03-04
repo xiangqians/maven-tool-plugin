@@ -1,10 +1,10 @@
-package org.xiangqian.maven.plugin.tool.mojo.ts;
+package org.xiangqian.maven.plugin.tool.ts;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.xiangqian.maven.plugin.tool.mojo.AbsMojo;
+import org.xiangqian.maven.plugin.tool.AbsMojo;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

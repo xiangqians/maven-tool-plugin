@@ -1,9 +1,9 @@
-package org.xiangqian.maven.plugin.tool.mojo.uuid;
+package org.xiangqian.maven.plugin.tool.uuid;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
-import org.xiangqian.maven.plugin.tool.mojo.AbsMojo;
+import org.xiangqian.maven.plugin.tool.AbsMojo;
 
 import java.util.UUID;
 

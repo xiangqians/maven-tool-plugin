@@ -1,4 +1,4 @@
-package org.xiangqian.maven.plugin.tool.mojo;
+package org.xiangqian.maven.plugin.tool;
 
 import lombok.Data;
 import org.apache.commons.lang3.ArrayUtils;

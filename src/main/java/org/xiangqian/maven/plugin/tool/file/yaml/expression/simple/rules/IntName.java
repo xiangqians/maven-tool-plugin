@@ -1,30 +1,30 @@
-package org.xiangqian.maven.plugin.tool.expression.simple.rules;
+package org.xiangqian.maven.plugin.tool.file.yaml.expression.simple.rules;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @author xiangqian
- * @date 11:24:36 2022/04/23
+ * @date 11:23:42 2022/04/23
  */
 @Data
 @AllArgsConstructor
-public class TextName implements Name<String> {
+public class IntName implements Name<Integer> {
 
-    private String value;
+    private int value;
 
     @Override
     public boolean isInt() {
-        return false;
-    }
-
-    @Override
-    public boolean isText() {
         return true;
     }
 
     @Override
-    public String get() {
+    public boolean isText() {
+        return false;
+    }
+
+    @Override
+    public Integer get() {
         return value;
     }
 

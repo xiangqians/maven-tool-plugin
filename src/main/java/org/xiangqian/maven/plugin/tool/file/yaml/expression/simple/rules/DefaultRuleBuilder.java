@@ -1,4 +1,4 @@
-package org.xiangqian.maven.plugin.tool.expression.simple.rules;
+package org.xiangqian.maven.plugin.tool.file.yaml.expression.simple.rules;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
